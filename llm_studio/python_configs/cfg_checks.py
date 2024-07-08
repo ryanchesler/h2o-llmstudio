@@ -75,15 +75,15 @@ def check_for_common_errors(cfg: DefaultConfigProblemBase) -> dict:
         ]
 
     if (
-        not cfg.training.lora
+        cfg.training.adapter == "None"
         and cfg.architecture.backbone_dtype not in ["bfloat16", "float32"]
         and cfg.training.epochs > 0
     ):
         errors["title"] += [f"Pure {cfg.architecture.backbone_dtype} training."]
         errors["message"] += [
-            f"When not using LORA, {cfg.architecture.backbone_dtype} training will "
+            f"When not using a PEFT adapter, {cfg.architecture.backbone_dtype} training will "
             "likely lead to unstable training. "
-            "Please use LORA or set Backbone Dtype to bfloat16 or float32."
+            "Please use LORA, Prompt_Tune or set Backbone Dtype to bfloat16 or float32."
         ]
 
     if cfg.environment.use_deepspeed and cfg.architecture.backbone_dtype in [

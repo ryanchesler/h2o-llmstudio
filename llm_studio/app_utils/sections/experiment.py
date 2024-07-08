@@ -1370,8 +1370,8 @@ async def summary_tab(experiment_id, q):
                         label="LLM Backbone",
                     ),
                     ui.stat(
-                        value=str(cfg.training.adapter == "lora"),
-                        label="Lora",
+                        value=str(cfg.training.adapter == "LoRA"),
+                        label="LoRA",
                     ),
                     ui.stat(
                         value=str(cfg.training.epochs),
@@ -1771,7 +1771,7 @@ async def experiment_download_model(q: Q):
             experiments[experiments["status"].isin(["queued", "running"])]
         )
         if num_running_queued > 0 or (
-            cfg.training.adapter == "lora" and cfg.architecture.backbone_dtype in ("int4", "int8")
+            cfg.training.adapter == "LoRA" and cfg.architecture.backbone_dtype in ("int4", "int8")
         ):
             logger.info("Preparing model on CPU. This might slow down the progress.")
             device = "cpu"

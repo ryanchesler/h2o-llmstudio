@@ -205,7 +205,7 @@ def load_cfg_model_tokenizer(
 
     if (
         merge
-        and cfg.training.lora
+        and cfg.training.adapter == "LoRA"
         and cfg.architecture.backbone_dtype in ("int4", "int8")
     ):
         # Force to float16 for merging LORA weights.
