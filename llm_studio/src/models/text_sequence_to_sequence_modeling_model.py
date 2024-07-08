@@ -10,6 +10,7 @@ from llm_studio.src.utils.modeling_utils import (
     create_nlp_backbone,
     generate,
     prepare_lora,
+    prepare_prompt_tune
 )
 
 logger = logging.getLogger(__name__)
@@ -32,7 +33,8 @@ class Model(nn.Module):
         self.backbone, self.backbone_config = create_nlp_backbone(
             cfg, model_class=AutoModelForSeq2SeqLM
         )
-
+        if cfg.training.prompt_tune:
+            self.backbone = prepare_prompt_tune(cfg, self.backbone, "SEQ_2_SEQ_LM")
         if cfg.training.lora:
             self.backbone = prepare_lora(cfg, self.backbone)
 
@@ -51,7 +53,20 @@ class Model(nn.Module):
             streamer=streamer,
             remove_prompt=False,
         )
-
+    def init_deepspeed(self):
+            self.backward = self.backbone.backward
+            self.save_checkpoint = self.backbone.save_checkpoint
+            self.save_16bit_model = self.backbone.save_16bit_model
+            if self.cfg.training.lora:
+                self.backbone.base_model.model.config = (
+                    self.backbone.base_model.model.module.config
+                )
+                self.backbone.base_model.model.generation_config = (
+                    self.backbone.base_model.model.module.generation_config
+                )
+            else:
+                self.backbone.config = self.backbone.module.config
+                self.backbone.generation_config = self.backbone.module.generation_config
     def forward(
         self,
         batch: Dict,

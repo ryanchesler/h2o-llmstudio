@@ -9,6 +9,7 @@ from llm_studio.src.utils.modeling_utils import (
     create_nlp_backbone,
     forward,
     prepare_lora,
+    prepare_prompt_tune
 )
 
 logger = logging.getLogger(__name__)
@@ -31,7 +32,8 @@ class Model(nn.Module):
         self.backbone, self.backbone_config = create_nlp_backbone(
             cfg, model_class=AutoModelForCausalLM
         )
-
+        if cfg.training.prompt_tune:
+            self.backbone = prepare_prompt_tune(cfg, self.backbone)
         if cfg.training.lora:
             self.backbone = prepare_lora(cfg, self.backbone)
 

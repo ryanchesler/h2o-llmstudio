@@ -151,6 +151,9 @@ class ConfigNLPCausalLMTraining(DefaultConfig):
     gradient_clip: float = 0.0
     grad_accumulation: int = 1
 
+    prompt_tune: bool = False
+    num_virtual_tokens: int = 16
+    
     lora: bool = True
     use_dora: bool = False
     lora_r: int = 4
@@ -197,6 +200,8 @@ class ConfigNLPCausalLMTraining(DefaultConfig):
         self._possible_values["gradient_clip"] = (0.0, 10.0, 0.1)
         self._possible_values["grad_accumulation"] = (1, 8, 1)
 
+        self._possible_values["num_virtual_tokens"] = (1, 256, 1)
+        
         self._possible_values["lora_r"] = (1, 256, 1)
         self._possible_values["lora_alpha"] = (1, 256, 1)
         self._possible_values["lora_dropout"] = (0.0, 0.5, 0.01)
@@ -272,6 +277,12 @@ class ConfigNLPCausalLMTraining(DefaultConfig):
         self._nesting.add(
             ["freeze_layers"],
             [Dependency(key="lora", value=False, is_set=True)],
+        )
+        self._nesting.add(
+            [
+                "num_virtual_tokens",
+            ],
+            [Dependency(key="prompt_tune", value=False, is_set=False)],
         )
         self._nesting.add(
             [

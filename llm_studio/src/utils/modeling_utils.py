@@ -13,7 +13,7 @@ import torch
 import transformers
 from deepspeed.runtime.dataloader import DeepSpeedDataLoader
 from deepspeed.utils.zero_to_fp32 import get_fp32_state_dict_from_zero_checkpoint
-from peft import LoraConfig, PeftModel, get_peft_model
+from peft import PromptTuningConfig, LoraConfig, PeftModel, get_peft_model
 from torch.cuda.amp import autocast
 from torch.nn.parallel import DistributedDataParallel
 from tqdm import tqdm
@@ -1074,6 +1074,22 @@ def prepare_lora(cfg: DefaultConfigProblemBase, backbone):
 
     return backbone
 
+def prepare_prompt_tune(cfg: DefaultConfigProblemBase, backbone, task_type = "CAUSAL_LM"):
+
+    prompt_tune_config = PromptTuningConfig(
+        num_virtual_tokens=cfg.training.num_virtual_tokens,
+        task_type=task_type,
+    )
+
+    backbone = get_peft_model(backbone, prompt_tune_config)
+    trainable_params, all_param = backbone.get_nb_trainable_parameters()
+    if cfg.environment._local_rank == 0:
+        logger.info(f"Trainable parameters count: {trainable_params}")
+        logger.info(f"Total parameters count: {all_param}")
+        logger.info(f"Trainable %: {100 * trainable_params / all_param:.4f}%")
+
+    return backbone
+
 
 def get_torch_dtype(dtype):
     if dtype == "float16":
@@ -1141,7 +1157,7 @@ def generate(
         backbone.gradient_checkpointing_disable()
     transformers_logging.set_verbosity_error()
     output = generation_function(
-        inputs=input_ids,
+        input_ids=input_ids,
         attention_mask=attention_mask,
         generation_config=backbone.generation_config,
         stopping_criteria=stopping_criteria,
