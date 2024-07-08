@@ -34,9 +34,9 @@ class Model(nn.Module):
         self.backbone, self.backbone_config = create_nlp_backbone(
             cfg, model_class=AutoModelForCausalLM
         )
-        if cfg.training.prompt_tune:
+        if cfg.training.adapter == "prompt_tune":
             self.backbone = prepare_prompt_tune(cfg, self.backbone)
-        if cfg.training.lora:
+        if cfg.training.adapter == "lora":
             self.backbone = prepare_lora(cfg, self.backbone)
 
         self.loss_fn = self.cfg.training.loss_class.get(
@@ -50,7 +50,7 @@ class Model(nn.Module):
         self.backward = self.backbone.backward
         self.save_checkpoint = self.backbone.save_checkpoint
         self.save_16bit_model = self.backbone.save_16bit_model
-        if self.cfg.training.lora:
+        if self.cfg.training.adapter == "lora":
             self.backbone.base_model.model.config = (
                 self.backbone.base_model.model.module.config
             )
@@ -62,7 +62,7 @@ class Model(nn.Module):
             self.backbone.generation_config = self.backbone.module.generation_config
 
     def generate(self, batch: Dict, cfg: Any, streamer=None):
-        if cfg.environment.use_deepspeed and cfg.training.lora:
+        if cfg.environment.use_deepspeed and cfg.training.adapter == "lora":
             return generate(self.backbone.base_model.model, batch, cfg, streamer)
         else:
             return generate(self.backbone, batch, cfg, streamer)

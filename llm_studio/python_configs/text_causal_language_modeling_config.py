@@ -151,10 +151,9 @@ class ConfigNLPCausalLMTraining(DefaultConfig):
     gradient_clip: float = 0.0
     grad_accumulation: int = 1
 
-    prompt_tune: bool = False
-    num_virtual_tokens: int = 16
+    adapter: str = "lora"
+    num_virtual_tokens: int = 32
     
-    lora: bool = True
     use_dora: bool = False
     lora_r: int = 4
     lora_alpha: int = 16
@@ -276,13 +275,17 @@ class ConfigNLPCausalLMTraining(DefaultConfig):
         )
         self._nesting.add(
             ["freeze_layers"],
-            [Dependency(key="lora", value=False, is_set=True)],
+            [Dependency(key="adapter", value="lora", is_set=True)],
+        )
+        self._nesting.add(
+            ["freeze_layers"],
+            [Dependency(key="adapter", value="prompt_tune", is_set=True)],
         )
         self._nesting.add(
             [
                 "num_virtual_tokens",
             ],
-            [Dependency(key="prompt_tune", value=False, is_set=False)],
+            [Dependency(key="adapter", value="prompt_tune", is_set=False)],
         )
         self._nesting.add(
             [
@@ -293,7 +296,7 @@ class ConfigNLPCausalLMTraining(DefaultConfig):
                 "lora_target_modules",
                 "lora_unfreeze_layers",
             ],
-            [Dependency(key="lora", value=False, is_set=False)],
+            [Dependency(key="adapter", value="lora", is_set=False)],
         )
 
 

@@ -32,9 +32,9 @@ class Model(nn.Module):
         self.backbone, self.backbone_config = create_nlp_backbone(
             cfg, model_class=AutoModelForCausalLM
         )
-        if cfg.training.prompt_tune:
+        if cfg.training.adapter == "prompt_tune":
             self.backbone = prepare_prompt_tune(cfg, self.backbone)
-        if cfg.training.lora:
+        if cfg.training.adapter == "lora":
             self.backbone = prepare_lora(cfg, self.backbone)
 
         self.classification_head = nn.Linear(
