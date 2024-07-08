@@ -170,7 +170,7 @@ class ConfigNLPCausalLMTraining(DefaultConfig):
         super().__post_init__()
         self._possible_values["loss_function"] = self.loss_class.names()
         self._possible_values["optimizer"] = Optimizers.names()
-        self._possible_values["adapter"] = ["LoRA", "Prompt_Tune", None]
+        self._possible_values["adapter"] = ["LoRA", "Prompt_Tune", "None"]
         self._possible_values["learning_rate"] = possible_values.Number(
             step=1e-9, min=1e-9
         )
