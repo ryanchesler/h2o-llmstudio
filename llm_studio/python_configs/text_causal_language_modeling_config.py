@@ -151,7 +151,7 @@ class ConfigNLPCausalLMTraining(DefaultConfig):
     gradient_clip: float = 0.0
     grad_accumulation: int = 1
 
-    adapter: str = "Lora"
+    adapter: str = "LoRA"
     num_virtual_tokens: int = 32
     
     use_dora: bool = False
@@ -170,7 +170,7 @@ class ConfigNLPCausalLMTraining(DefaultConfig):
         super().__post_init__()
         self._possible_values["loss_function"] = self.loss_class.names()
         self._possible_values["optimizer"] = Optimizers.names()
-        self._possible_values["adapter"] = ["Lora", "Prompt_Tune"]
+        self._possible_values["adapter"] = ["LoRA", "Prompt_Tune", None]
         self._possible_values["learning_rate"] = possible_values.Number(
             step=1e-9, min=1e-9
         )
@@ -275,7 +275,7 @@ class ConfigNLPCausalLMTraining(DefaultConfig):
         )
         self._nesting.add(
             ["freeze_layers"],
-            [Dependency(key="adapter", value="Lora", is_set=True)],
+            [Dependency(key="adapter", value="LoRA", is_set=True)],
         )
         self._nesting.add(
             ["freeze_layers"],

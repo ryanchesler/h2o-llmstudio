@@ -135,7 +135,7 @@ def save_checkpoint(
             model = unwrap_model(model)
             checkpoint = {"model": model.state_dict()}
             torch.save(checkpoint, os.path.join(path, "checkpoint.pth"))
-            if cfg.training.adapter == "lora" and len(cfg.training.lora_unfreeze_layers) == 0:
+            if cfg.training.adapter == "LoRA" and len(cfg.training.lora_unfreeze_layers) == 0:
                 model.backbone.save_pretrained(os.path.join(path, "adapter_model"))
 
     if (
@@ -233,7 +233,7 @@ def load_checkpoint(
         model_weights = model_weights["model"]
 
     if cfg.environment.use_deepspeed:
-        if cfg.training.adapter == "lora":
+        if cfg.training.adapter == "LoRA":
             model.backbone.base_model.model = load_model_weights(  # type: ignore
                 model.backbone.base_model.model,  # type: ignore
                 model_weights,
@@ -329,7 +329,7 @@ def wrap_model_distributed(
 ):
     if cfg.environment.use_deepspeed:
         ds_config = get_ds_config(cfg)
-        if not cfg.training.adapter == "lora":
+        if not cfg.training.adapter == "LoRA":
             ds_engine, optimizer, train_dataloader, lr_scheduler = deepspeed.initialize(
                 model=model.backbone,
                 optimizer=optimizer,
@@ -698,7 +698,7 @@ def update_backbone_config(config: Any, cfg: DefaultConfigProblemBase):
         config.init_device = cfg.environment._device
 
     # See: https://github.com/huggingface/transformers/pull/24906
-    if hasattr(config, "pretraining_tp") and cfg.training.adapter == "lora":
+    if hasattr(config, "pretraining_tp") and cfg.training.adapter == "LoRA":
         logger.info("Setting pretraining_tp of model config to 1.")
         config.pretraining_tp = 1
 
@@ -829,7 +829,7 @@ def create_nlp_backbone(cfg: DefaultConfigProblemBase, model_class=AutoModel) ->
 
     backbone.model_parallel = False
 
-    if cfg.training.adapter == "lora":
+    if cfg.training.adapter == "LoRA":
         # if used, gradient checkpointing will be enabled below
         loaded_in_kbit = getattr(backbone, "is_loaded_in_8bit", False) or getattr(
             backbone, "is_loaded_in_4bit", False

@@ -33,9 +33,9 @@ class Model(nn.Module):
         self.backbone, self.backbone_config = create_nlp_backbone(
             cfg, model_class=AutoModelForSeq2SeqLM
         )
-        if cfg.training.adapter == "prompt_tune":
+        if cfg.training.adapter == "Prompt_Tune":
             self.backbone = prepare_prompt_tune(cfg, self.backbone, "SEQ_2_SEQ_LM")
-        if cfg.training.adapter == "lora":
+        if cfg.training.adapter == "LoRA":
             self.backbone = prepare_lora(cfg, self.backbone)
 
         self.loss_fn = self.cfg.training.loss_class.get(
@@ -57,7 +57,7 @@ class Model(nn.Module):
             self.backward = self.backbone.backward
             self.save_checkpoint = self.backbone.save_checkpoint
             self.save_16bit_model = self.backbone.save_16bit_model
-            if self.cfg.training.adapter == "lora":
+            if self.cfg.training.adapter == "LoRA":
                 self.backbone.base_model.model.config = (
                     self.backbone.base_model.model.module.config
                 )

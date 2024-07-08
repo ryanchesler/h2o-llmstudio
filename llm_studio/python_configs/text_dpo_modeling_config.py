@@ -69,7 +69,7 @@ class ConfigDPOTraining(ConfigNLPCausalLMTraining):
     loss_function: str = "DPOLoss"
     optimizer: str = "AdamW"
     # Needs to be enabled as we need logits from original model, see forward pass
-    lora: bool = True
+    adapter: str = "LoRA"
 
     def __post_init__(self):
         super().__post_init__()

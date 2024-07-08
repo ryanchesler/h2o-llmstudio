@@ -82,12 +82,12 @@ class Model(nn.Module):
         self.backbone, self.backbone_config = create_nlp_backbone(
             cfg, model_class=AutoModelForCausalLM
         )
-        if cfg.training.adapter == "prompt_tune":
+        if cfg.training.adapter == "Prompt_Tune":
             self.backbone = prepare_prompt_tune(cfg, self.backbone)
-        if cfg.training.adapter == "lora":
+        if cfg.training.adapter == "LoRA":
             self.backbone = prepare_lora(cfg=cfg, backbone=self.backbone)
 
-        if cfg.training.adapter == "lora" and not cfg.training.lora_unfreeze_layers:
+        if cfg.training.adapter == "LoRA" and not cfg.training.lora_unfreeze_layers:
             self.backbone_orig = None
         else:
             if cfg.environment._local_rank == 0:
