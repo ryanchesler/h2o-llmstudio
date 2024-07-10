@@ -98,7 +98,7 @@ class Model(nn.Module):
         output = forward(self.backbone, batch["input_ids"], batch["attention_mask"])
 
         if "labels" in batch:
-            if self.cfg.training.Prompt_Tune:
+            if self.cfg.training.adapter == "Prompt_Tune":
                 output.logits = output.logits[:, self.cfg.training.num_virtual_tokens:, :]
             loss = self.loss_fn(output.logits, batch["labels"])
             outputs["loss"] = loss
