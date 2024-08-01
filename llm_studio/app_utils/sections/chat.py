@@ -234,7 +234,7 @@ def load_cfg_model_tokenizer(
             device_map=device_map,
         )
 
-    if merge and cfg.training.lora:
+    if merge and cfg.training.adapter == "LoRA":
         # merges the LoRa layers into the base model.
         # This is needed if one wants to use the base model as a standalone model.
         logger.info("Merging LORA layers with base model.")
