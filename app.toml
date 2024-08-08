@@ -1,0 +1,41 @@
+[App]
+Name = "ai.h2o.wave.llm_tuning_studio"
+Version = "0.0.1"
+Title = "LLM Tuning Studio"
+Description = "Tune prompts for more accurate LLM usage"
+LongDescription = "README.md"
+
+[Runtime]
+AppMode = "container"
+Port = 10101
+EnableOIDC = true
+RoutingMode = "BASE_URL"
+VolumeMount = "/data"
+VolumeSize = "200Gi"
+ResourceVolumeSize = "32Gi"
+MemoryLimit = "96Gi"
+MemoryReservation = "48Gi"
+EnableSHM = true
+GPUCount = 1
+RuntimeVersion = "ub2204_cuda121_cudnn8_py310_wlatest"
+CustomImage = "us-docker.pkg.dev/vorvan/dev/h2oai-llmtuningstudio-app:v0.1"
+
+[[Env]]
+Name = "H2O_LLM_STUDIO_WORKDIR"
+Value = "/data"
+
+[[Env]]
+Name = "H2O_WAVE_MAX_REQUEST_SIZE"
+Value = "100MB"
+
+[[Env]]
+Name = "ALLOWED_FILE_EXTENSIONS"
+Value = ".zip,.csv,.pq"
+
+[[Env]]
+Name = "MIN_DISK_SPACE_FOR_EXPERIMENTS"
+Value = "2GB"
+
+[[Env]]
+Name = "MIN_DISK_SPACE_FOR_PIPELINES"
+Value = "4GB"
